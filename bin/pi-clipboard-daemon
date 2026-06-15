@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# macOS daemon: watches the local clipboard for images and copies them to a
+# remote Linux machine where pi is running.
+#
+# Configure with env vars, e.g.:
+#   PI_CLIPBOARD_REMOTE=lucas@homeos pi-clipboard-daemon
+
+REMOTE="${PI_CLIPBOARD_REMOTE:-${1:-}}"
+DEST_DIR="${PI_CLIPBOARD_DEST_DIR:-/tmp/pi-images}"
+INTERVAL="${PI_CLIPBOARD_INTERVAL:-1}"
+TMP_FILE="${TMPDIR:-/tmp}/pi-clipboard.png"
+
+if [[ -z "$REMOTE" ]]; then
+  echo "Usage: PI_CLIPBOARD_REMOTE=<user@host> $0" >&2
+  echo "   or: $0 <user@host>" >&2
+  exit 2
+fi
+
+if ! command -v pngpaste >/dev/null 2>&1; then
+  echo "pngpaste not found. Install it with: brew install pngpaste" >&2
+  exit 127
+fi
+
+if ! command -v md5 >/dev/null 2>&1; then
+  echo "md5 not found" >&2
+  exit 127
+fi
+
+ssh "$REMOTE" "mkdir -p '$DEST_DIR'"
+
+last_hash=""
+echo "Watching macOS clipboard for images. Remote: $REMOTE:$DEST_DIR" >&2
+
+while true; do
+  if pngpaste "$TMP_FILE" 2>/dev/null; then
+    hash="$(md5 -q "$TMP_FILE")"
+    if [[ "$hash" != "$last_hash" ]]; then
+      last_hash="$hash"
+      timestamp="$(date +%Y%m%d-%H%M%S)"
+      remote_path="$DEST_DIR/clip-$timestamp-$hash.png"
+
+      if scp -q "$TMP_FILE" "$REMOTE:$remote_path"; then
+        ssh "$REMOTE" "printf '%s\n' '$remote_path' > '$DEST_DIR/latest.txt'"
+        echo "Uploaded: $remote_path" >&2
+      else
+        echo "Upload failed; will retry on next clipboard change" >&2
+      fi
+    fi
+  fi
+  sleep "$INTERVAL"
+done

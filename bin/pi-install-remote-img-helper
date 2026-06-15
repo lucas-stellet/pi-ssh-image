@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REMOTE="${PI_CLIPBOARD_REMOTE:-${1:-}}"
+DEST="${PI_CLIPBOARD_HELPER_PATH:-/usr/local/bin/img}"
+
+if [[ -z "$REMOTE" ]]; then
+  echo "Usage: PI_CLIPBOARD_REMOTE=<user@host> $0" >&2
+  echo "   or: $0 <user@host>" >&2
+  exit 2
+fi
+
+TMP_REMOTE="/tmp/img.$$"
+
+cat <<'REMOTE_SCRIPT' | ssh "$REMOTE" "cat > '$TMP_REMOTE' && sudo mv '$TMP_REMOTE' '$DEST' && sudo chmod +x '$DEST' && mkdir -p /tmp/pi-images"
+#!/usr/bin/env bash
+set -euo pipefail
+latest=/tmp/pi-images/latest.txt
+if [[ -s "$latest" ]]; then
+  cat "$latest"
+else
+  echo "No image yet" >&2
+  exit 1
+fi
+REMOTE_SCRIPT
+
+echo "Installed $DEST on $REMOTE"
