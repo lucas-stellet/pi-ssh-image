@@ -1,0 +1,26 @@
+{
+  "name": "pi-ssh-image",
+  "version": "0.1.0",
+  "description": "Bridge macOS clipboard images into remote pi sessions over SSH.",
+  "private": false,
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "clipboard",
+    "ssh",
+    "images"
+  ],
+  "license": "MIT",
+  "bin": {
+    "pi-clipboard-daemon": "bin/pi-clipboard-daemon",
+    "pi-install-remote-img-helper": "bin/pi-install-remote-img-helper"
+  },
+  "pi": {
+    "extensions": [
+      "./extension/pi-latest-image.ts"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  }
+}

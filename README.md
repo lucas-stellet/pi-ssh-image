@@ -19,6 +19,7 @@ When you copy an image on macOS, SSH does not deliver that image to the remote L
 - `bin/pi-clipboard-daemon` — macOS clipboard watcher/uploader.
 - `bin/pi-install-remote-img-helper` — installs an optional `img` command on Linux.
 - `extension/pi-latest-image.ts` — pi extension that pastes the latest image path into the input.
+- `package.json` — pi package manifest so the extension can be installed from GitHub.
 
 ## Requirements
 
@@ -34,7 +35,7 @@ You also need working SSH access to the Linux host, for example:
 ssh user@example-host
 ```
 
-## Install
+## Install for your own use
 
 Clone this repo on macOS:
 
@@ -54,8 +55,7 @@ chmod +x ~/bin/pi-clipboard-daemon ~/bin/pi-install-remote-img-helper
 Install the pi extension on the remote Linux host:
 
 ```bash
-ssh user@example-host 'mkdir -p ~/.pi/agent/extensions'
-scp extension/pi-latest-image.ts user@example-host:~/.pi/agent/extensions/pi-latest-image.ts
+ssh user@example-host 'pi install git:github.com/lucas-stellet/pi-ssh-image'
 ```
 
 Optional: install the `img` shell helper on Linux:
@@ -71,6 +71,24 @@ In an already-running pi session on Linux, reload extensions:
 ```
 
 Or restart pi.
+
+## Install from GitHub as a pi package
+
+The repository is structured as a pi package. Other users can install the extension directly on the Linux machine where `pi` runs:
+
+```bash
+pi install git:github.com/lucas-stellet/pi-ssh-image
+```
+
+That installs only the pi-side extension. The macOS daemon still needs to run on the Mac that owns the clipboard:
+
+```bash
+git clone https://github.com/lucas-stellet/pi-ssh-image.git
+cd pi-ssh-image
+mkdir -p ~/bin
+cp bin/pi-clipboard-daemon bin/pi-install-remote-img-helper ~/bin/
+chmod +x ~/bin/pi-clipboard-daemon ~/bin/pi-install-remote-img-helper
+```
 
 ## Run the clipboard daemon
 
@@ -149,6 +167,11 @@ If you want the daemon to start automatically when you log into macOS, create `~
   <key>KeepAlive</key><true/>
   <key>StandardOutPath</key><string>/Users/you/.pi-clipboard-daemon.log</string>
   <key>StandardErrorPath</key><string>/Users/you/.pi-clipboard-daemon.err</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
 </dict>
 </plist>
 ```
@@ -158,6 +181,7 @@ Load it:
 ```bash
 launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.pi.clipboard.plist
 launchctl enable gui/$(id -u)/com.pi.clipboard
+launchctl kickstart -k gui/$(id -u)/com.pi.clipboard
 ```
 
 ## Notes
