@@ -1,7 +1,7 @@
 import type { ExtensionAPI, ExtensionCommandContext } from "@earendil-works/pi-coding-agent";
 import { readFile } from "node:fs/promises";
 
-const latestFile = process.env.PI_SSH_IMAGE_LATEST_FILE ?? "/tmp/pi-images/latest.txt";
+const latestFile = "/tmp/pi-images/latest.txt";
 
 async function latestImagePath() {
   const imagePath = (await readFile(latestFile, "utf8")).trim();
@@ -12,28 +12,28 @@ async function latestImagePath() {
 async function pasteLatestImagePath(ctx: ExtensionCommandContext) {
   const imagePath = await latestImagePath();
   ctx.ui.pasteToEditor(imagePath);
-  ctx.ui.notify("Image path pasted into input", "info");
+  ctx.ui.notify("Path da imagem colado no input", "info");
 }
 
 export default function (pi: ExtensionAPI) {
   pi.registerCommand("img", {
-    description: "Paste the latest synced image path into the pi input",
+    description: "Cola o path da última imagem sincronizada no input",
     handler: async (_args, ctx) => {
       try {
         await pasteLatestImagePath(ctx);
       } catch (error) {
-        ctx.ui.notify(`Failed to paste image path: ${error instanceof Error ? error.message : String(error)}`, "error");
+        ctx.ui.notify(`Falha ao colar path: ${error instanceof Error ? error.message : String(error)}`, "error");
       }
     },
   });
 
   pi.registerShortcut("ctrl+shift+i", {
-    description: "Paste the latest synced image path",
+    description: "Colar path da última imagem sincronizada",
     handler: async (ctx) => {
       try {
         await pasteLatestImagePath(ctx);
       } catch (error) {
-        ctx.ui.notify(`Failed to paste image path: ${error instanceof Error ? error.message : String(error)}`, "error");
+        ctx.ui.notify(`Falha ao colar path: ${error instanceof Error ? error.message : String(error)}`, "error");
       }
     },
   });

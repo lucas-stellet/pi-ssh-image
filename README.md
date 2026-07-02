@@ -31,7 +31,7 @@ brew install pngpaste
 You also need working SSH access to the Linux host, for example:
 
 ```bash
-ssh lucas@homeos
+ssh user@example-host
 ```
 
 ## Install
@@ -54,14 +54,14 @@ chmod +x ~/bin/pi-clipboard-daemon ~/bin/pi-install-remote-img-helper
 Install the pi extension on the remote Linux host:
 
 ```bash
-ssh lucas@homeos 'mkdir -p ~/.pi/agent/extensions'
-scp extension/pi-latest-image.ts lucas@homeos:~/.pi/agent/extensions/pi-latest-image.ts
+ssh user@example-host 'mkdir -p ~/.pi/agent/extensions'
+scp extension/pi-latest-image.ts user@example-host:~/.pi/agent/extensions/pi-latest-image.ts
 ```
 
 Optional: install the `img` shell helper on Linux:
 
 ```bash
-~/bin/pi-install-remote-img-helper lucas@homeos
+~/bin/pi-install-remote-img-helper user@example-host
 ```
 
 In an already-running pi session on Linux, reload extensions:
@@ -77,7 +77,7 @@ Or restart pi.
 On macOS:
 
 ```bash
-~/bin/pi-clipboard-daemon lucas@homeos
+~/bin/pi-clipboard-daemon user@example-host
 ```
 
 Leave that terminal open. When you copy an image, you should see:
@@ -89,7 +89,7 @@ Uploaded: /tmp/pi-images/clip-...
 To run it in the background:
 
 ```bash
-PI_CLIPBOARD_REMOTE=lucas@homeos nohup ~/bin/pi-clipboard-daemon > ~/.pi-clipboard-daemon.log 2>&1 &
+PI_CLIPBOARD_REMOTE=user@example-host nohup ~/bin/pi-clipboard-daemon > ~/.pi-clipboard-daemon.log 2>&1 &
 ```
 
 Check logs:
@@ -132,7 +132,7 @@ Analyze this screenshot /tmp/pi-images/clip-....png and tell me what is wrong.
 
 ## Optional LaunchAgent
 
-If you want the daemon to start automatically when you log into macOS, create `~/Library/LaunchAgents/com.pi.clipboard.plist` and replace `lucas@homeos` with your SSH target:
+If you want the daemon to start automatically when you log into macOS, create `~/Library/LaunchAgents/com.pi.clipboard.plist` and replace `user@example-host` and `/Users/you` with your values:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -142,13 +142,13 @@ If you want the daemon to start automatically when you log into macOS, create `~
   <key>Label</key><string>com.pi.clipboard</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/Users/lucas/bin/pi-clipboard-daemon</string>
-    <string>lucas@homeos</string>
+    <string>/Users/you/bin/pi-clipboard-daemon</string>
+    <string>user@example-host</string>
   </array>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
-  <key>StandardOutPath</key><string>/Users/lucas/.pi-clipboard-daemon.log</string>
-  <key>StandardErrorPath</key><string>/Users/lucas/.pi-clipboard-daemon.err</string>
+  <key>StandardOutPath</key><string>/Users/you/.pi-clipboard-daemon.log</string>
+  <key>StandardErrorPath</key><string>/Users/you/.pi-clipboard-daemon.err</string>
 </dict>
 </plist>
 ```

@@ -5,7 +5,7 @@ set -euo pipefail
 # remote Linux machine where pi is running.
 #
 # Configure with env vars, e.g.:
-#   PI_CLIPBOARD_REMOTE=lucas@homeos pi-clipboard-daemon
+#   PI_CLIPBOARD_REMOTE=user@example-host pi-clipboard-daemon
 
 REMOTE="${PI_CLIPBOARD_REMOTE:-${1:-}}"
 DEST_DIR="${PI_CLIPBOARD_DEST_DIR:-/tmp/pi-images}"
